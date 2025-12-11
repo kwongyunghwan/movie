@@ -4,12 +4,12 @@ import Detail from "./routes/Detail";
 function App() {
   return <Router>
       <Switch>
-        <Route path="/">
-          <Home />
-        </Route>
         <Route path="/movie/:id"> 
           <Detail />
         </Route>
+        <Route path="/">
+          <Home />
+        </Route>        
       </Switch>
   </Router>
 }
