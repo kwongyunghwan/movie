@@ -40,9 +40,13 @@ function Home() {
                         )
                     ).json();
 
+                    const flatrate = ottResponse.results?.KR?.flatrate || [];
+                    const buy = ottResponse.results?.KR?.buy || [];
+                    const allProviders = [...flatrate, ...buy];
+
                     return {
                         ...movie,
-                        ottProviders: ottResponse.results?.KR?.buy || [] // 한국에서 구매 가능한 OTT
+                        ottProviders: allProviders
                     };
                 })
             );
