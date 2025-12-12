@@ -8,38 +8,77 @@ import styles from "./Home.module.css";
 
 function Home() {
     const [loading, setLoading] = useState(true);
-    const [movies, setMovies] = useState([]);
+    const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
+    const [popularMovies, setPopularMovies] = useState([]);
+    const [upcomingMovies, setUpcomingMovies] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedGenre, setSelectedGenre] = useState("All");
+    
+    const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
 
     const getMovies = async () => {
-        const json = await (
-            await fetch(
-                `https://yts.lt/api/v2/list_movies.json?minimum_rating=8.8&sort_by=year`
-            )
-        ).json();
-        setMovies(json.data.movies);
-        setLoading(false);
-        console.log(json.data.movies);
+        try {
+            // 현재 상영중 데이터
+            const nowPlayingResponse = await (
+                await fetch(
+                    `https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=ko-KR&region=KR&page=1`
+                )
+            ).json();
+
+            // 인기 영화 데이터
+            const popularResponse = await (
+                await fetch(
+                    `https://api.themoviedb.org/3/movie/top_rated?api_key=${API_KEY}&language=ko-KR&region=KR&page=1`
+                )
+            ).json();
+
+            // 인기 영화데이터 ott 정보확인
+            const popularWithOTT = await Promise.all(
+                popularResponse.results.map(async (movie) => {
+                    const ottResponse = await (
+                        await fetch(
+                        `https://api.themoviedb.org/3/movie/${movie.id}/watch/providers?api_key=${API_KEY}`
+                        )
+                    ).json();
+
+                    return {
+                        ...movie,
+                        ottProviders: ottResponse.results?.KR?.buy || [] // 한국에서 구매 가능한 OTT
+                    };
+                })
+            );
+            // 공개 예정 데이터 
+            const upcomingMovies = await (
+                await fetch(
+                    `https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=ko-KR&region=KR&page=1`
+                )
+            ).json();
+
+            setNowPlayingMovies(nowPlayingResponse.results);
+            setPopularMovies(popularWithOTT);
+            setUpcomingMovies(upcomingMovies.results);
+            setLoading(false);
+
+        }catch (error){
+            console.error("영화 데이터 로딩 실패:", error);
+            setLoading(true);            
+        }
     }
+
+    console.log('now',nowPlayingMovies);
+    console.log('pop',popularMovies);
+    console.log('up',upcomingMovies);
 
     useEffect(() => {
         getMovies();
     }, []);
-    // 평점 높은 순으로 정렬
-    const sortedMovies = [...movies].sort((a, b) => b.rating - a.rating);
 
-    // 모든 장르 추출
-    const allGenres = ["All", ...new Set(movies.flatMap(movie => movie.genres || []))];
+    // 검색 필터링 (인기 영화에만 적용)
+    const filteredPopularMovies = popularMovies.filter(movie => 
+        movie.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-    // 검색 + 장르 필터링
-    const filteredMovies = sortedMovies.filter(movie => {
-        const matchesSearch = movie.title.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesGenre = selectedGenre === "All" || (movie.genres && movie.genres.includes(selectedGenre));
-        return matchesSearch && matchesGenre;
-    });
     // Carousel 설정
-    const settings = {
+    const carouselSettings = {
         dots: true,              // 하단에 점(dot) 표시
         infinite: true,          // 무한 반복
         speed: 500,              // 슬라이드 속도
@@ -69,10 +108,6 @@ function Home() {
         setSearchTerm(term);
     };
 
-    const handleGenreClick = (genre) => {
-        setSelectedGenre(genre);
-    };
-
     return (
         <>
             <Header onSearch={handleSearch} />
@@ -83,66 +118,56 @@ function Home() {
                     </div>
                 ) : (
                     <>
-                        {/* Carousel Section */}
-                        <div className={styles.carousel__section}>
-                            <h2 className={styles.section__title}>추천 영화</h2>
-                            <div className={styles.movies__carousel}>
-                                <Slider {...settings}>
-                                    {sortedMovies.slice(0, 12).map((movie) => (
+                        {/* 현재 상영중 - Carousel */}
+                        <section className={styles.section}>
+                            <h2 className={styles.section__title}>현재 상영중</h2>
+                            <div className={styles.carousel__wrapper}>
+                                <Slider {...carouselSettings}>
+                                    {nowPlayingMovies.map((movie) => (
                                         <Movie
                                             key={movie.id}
                                             id={movie.id}
-                                            year={movie.year}
-                                            coverImg={movie.medium_cover_image}
+                                            coverImg={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                                             title={movie.title}
-                                            summary={movie.summary}
-                                            genres={movie.genres}
-                                            rating={movie.rating}
+                                            rating={movie.vote_average}
                                         />
                                     ))}
                                 </Slider>
                             </div>
-                        </div>
+                        </section>
 
-                        {/* Genre Filter Section */}
-                        <div className={styles.genre__section}>
-                            <h2 className={styles.section__title}>장르별 영화</h2>
-                            <div className={styles.genre__buttons}>
-                                {allGenres.map((genre) => (
-                                    <button
-                                        key={genre}
-                                        className={`${styles.genre__button} ${
-                                            selectedGenre === genre ? styles.genre__button_active : ""
-                                        }`}
-                                        onClick={() => handleGenreClick(genre)}
-                                    >
-                                        {genre}
-                                    </button>
+                        {/* 인기 영화 - Grid */}
+                        <section className={styles.section}>
+                            <h2 className={styles.section__title}>인기 영화</h2>
+                            <div className={styles.movies__grid}>
+                                {(searchTerm ? filteredPopularMovies : popularMovies).map((movie) => (
+                                    <Movie
+                                        key={movie.id}
+                                        id={movie.id}
+                                        coverImg={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                                        title={movie.title}
+                                        rating={movie.vote_average}
+                                        ottProviders={movie.ottProviders}
+                                    />
                                 ))}
                             </div>
-                        </div>
+                        </section>
 
-                        {/* Movies Grid Section */}
-                        <div className={styles.grid__section}>
-                            {filteredMovies.length > 0 ? (
-                                <div className={styles.movies__grid}>
-                                    {filteredMovies.map((movie) => (
-                                        <Movie
-                                            key={movie.id}
-                                            id={movie.id}
-                                            year={movie.year}
-                                            coverImg={movie.medium_cover_image}
-                                            title={movie.title}
-                                            summary={movie.summary}
-                                            genres={movie.genres}
-                                            rating={movie.rating}
-                                        />
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className={styles.no__results}>검색 결과가 없습니다 😢</p>
-                            )}
-                        </div>
+                        {/* 공개 예정 - Grid */}
+                        <section className={styles.section}>
+                            <h2 className={styles.section__title}>공개 예정</h2>
+                            <div className={styles.movies__grid}>
+                                {upcomingMovies.map((movie) => (
+                                    <Movie
+                                        key={movie.id}
+                                        id={movie.id}
+                                        coverImg={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                                        title={movie.title}
+                                        rating={movie.vote_average}
+                                    />
+                                ))}
+                            </div>
+                        </section>
                     </>
                 )}
             </div>

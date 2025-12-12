@@ -15,9 +15,10 @@
   font-weight: 300;
 }
 
-/* Carousel Section */
-.carousel__section {
-  margin-bottom: 60px;
+/* Section */
+.section {
+  max-width: 1400px;
+  margin: 0 auto 80px;
 }
 
 .section__title {
@@ -25,102 +26,60 @@
   font-size: 32px;
   font-weight: 700;
   text-align: center;
-  margin: 0 0 30px 0;
+  margin: 0 0 40px 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.movies__carousel {
-  width: 90%;
-  max-width: 1400px;
-  margin: 0 auto;
+/* Carousel Wrapper */
+.carousel__wrapper {
+  width: 100%;
   padding: 0 50px;
 }
 
 /* Slick Carousel 커스터마이징 */
-.movies__carousel :global(.slick-prev),
-.movies__carousel :global(.slick-next) {
+.carousel__wrapper :global(.slick-prev),
+.carousel__wrapper :global(.slick-next) {
   width: 50px;
   height: 50px;
   z-index: 10;
 }
 
-.movies__carousel :global(.slick-prev) {
+.carousel__wrapper :global(.slick-prev) {
   left: -60px;
 }
 
-.movies__carousel :global(.slick-next) {
+.carousel__wrapper :global(.slick-next) {
   right: -60px;
 }
 
-.movies__carousel :global(.slick-prev:before),
-.movies__carousel :global(.slick-next:before) {
+.carousel__wrapper :global(.slick-prev:before),
+.carousel__wrapper :global(.slick-next:before) {
   font-size: 50px;
   color: white;
   opacity: 0.75;
 }
 
-.movies__carousel :global(.slick-prev:hover:before),
-.movies__carousel :global(.slick-next:hover:before) {
+.carousel__wrapper :global(.slick-prev:hover:before),
+.carousel__wrapper :global(.slick-next:hover:before) {
   opacity: 1;
 }
 
-.movies__carousel :global(.slick-dots) {
+.carousel__wrapper :global(.slick-dots) {
   bottom: -50px;
 }
 
-.movies__carousel :global(.slick-dots li button:before) {
+.carousel__wrapper :global(.slick-dots li button:before) {
   font-size: 12px;
   color: white;
   opacity: 0.5;
 }
 
-.movies__carousel :global(.slick-dots li.slick-active button:before) {
+.carousel__wrapper :global(.slick-dots li.slick-active button:before) {
   color: white;
   opacity: 1;
 }
 
-/* Genre Section */
-.genre__section {
-  max-width: 1400px;
-  margin: 0 auto 60px;
-}
-
-.genre__buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: center;
-  padding: 0 20px;
-}
-
-.genre__button {
-  padding: 12px 24px;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 25px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.genre__button:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-}
-
-.genre__button_active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: transparent;
-}
-
-/* Grid Section */
-.grid__section {
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
+/* Movies Grid */
 .movies__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -128,24 +87,17 @@
   padding: 0 20px;
 }
 
-.no__results {
-  color: white;
-  font-size: 24px;
-  text-align: center;
-  margin: 60px 0;
-}
-
 /* Responsive */
 @media screen and (max-width: 1090px) {
-  .movies__carousel {
+  .carousel__wrapper {
     padding: 0 30px;
   }
   
-  .movies__carousel :global(.slick-prev) {
+  .carousel__wrapper :global(.slick-prev) {
     left: -30px;
   }
   
-  .movies__carousel :global(.slick-next) {
+  .carousel__wrapper :global(.slick-next) {
     right: -30px;
   }
 
@@ -160,13 +112,8 @@
     font-size: 24px;
   }
 
-  .genre__buttons {
-    gap: 10px;
-  }
-
-  .genre__button {
-    padding: 10px 20px;
-    font-size: 14px;
+  .section {
+    margin-bottom: 60px;
   }
 }
 
