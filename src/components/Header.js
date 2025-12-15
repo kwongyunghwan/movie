@@ -1,5 +1,6 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 import styles from "./Header.module.css";
 
 function Header({ onSearch }) {
@@ -20,13 +21,27 @@ function Header({ onSearch }) {
     return (
         <header className={styles.header}>
             <div className={styles.header__container}>
-                <h1 className={styles.header__logo}>
-                    영추사
-                </h1>
+                <div className={styles.header__left}>
+                    <Link to="/" className={styles.header__logo}>
+                        영추사
+                    </Link>
+                    <nav className={styles.header__nav}>
+                        <Link to="/" className={styles.header__nav__link}>
+                            홈
+                        </Link>
+                        <Link to="/popular" className={styles.header__nav__link}>
+                            인기영화
+                        </Link>
+                        <Link to="/series" className={styles.header__nav__link}>
+                            시리즈별 영화
+                        </Link>
+                    </nav>
+                </div>
+                
                 <form onSubmit={handleSubmit} className={styles.header__search}>
                     <input
                         type="text"
-                        placeholder="영화 제목을 검색해보세요."
+                        placeholder="영화를 검색해보세요."
                         value={searchTerm}
                         onChange={handleChange}
                         className={styles.header__input}

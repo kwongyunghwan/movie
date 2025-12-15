@@ -1,29 +1,69 @@
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import styles from "./Movie.module.css";
 
-function Movie({ id, coverImg, title, rating, ottProviders }) {
+function Movie({ id, coverImg, title, year, summary, genres, rating, ottProviders }) {
+    const location = useLocation();
+
     return (
         <div className={styles.movie}>
-            <img src={coverImg} alt={title} className={styles.movie__img} />
+            <Link
+                to={{
+                    pathname: `/${id}`,
+                    state: {
+                        background: location,
+                        movie: {
+                            id,
+                            title,
+                            poster_path: coverImg.split('/w500')[1],
+                            release_date: year,
+                            vote_average: rating,
+                            overview: summary,
+                            genres: genres || [],
+                        },
+                        ottProviders: ottProviders || []
+                    }
+                }}
+            >
+                <img src={coverImg} alt={title} className={styles.movie__img} />
+            </Link>
             <div>
                 <h2 className={styles.movie__title}>
-                    <Link to={`/movie/${id}`}>{title}</Link>
+                    <Link
+                        to={{
+                            pathname: `/${id}`,
+                            state: {
+                                background: location,
+                                movie: {
+                                    id,
+                                    title,
+                                    poster_path: coverImg.split('/w500')[1],
+                                    release_date: year,
+                                    vote_average: rating,
+                                    overview: summary,
+                                    genres: genres || [],
+                                },
+                                ottProviders: ottProviders || []
+                            }
+                        }}
+                    >
+                        {title}
+                    </Link>
                 </h2>
-                
+
                 {/* 별점 */}
                 {rating && (
                     <div className={styles.movie__rating}>
                         ⭐ {rating.toFixed(1)}
                     </div>
                 )}
-                
+
                 {/* OTT 정보 */}
                 {ottProviders && ottProviders.length > 0 && (
                     <div className={styles.movie__ott}>
                         <ul className={styles.movie__ott__list}>
-                            {ottProviders.map((provider) => (
-                                <li key={provider.provider_id} className={styles.movie__ott__item}>
+                            {ottProviders.map((provider, index) => (
+                                <li key={`${id}-ott-${index}`} className={styles.movie__ott__item}>
                                     {provider.logo_path && (
                                         <img
                                             src={`https://image.tmdb.org/t/p/original${provider.logo_path}`}
@@ -36,7 +76,7 @@ function Movie({ id, coverImg, title, rating, ottProviders }) {
                             ))}
                         </ul>
                     </div>
-)}
+                )}
             </div>
         </div>
     );

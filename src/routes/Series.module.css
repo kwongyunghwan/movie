@@ -1,0 +1,225 @@
+.container {
+  min-height: 100vh;
+  background-color: #3a3a3a;
+  padding: 40px 20px 80px;
+}
+
+.loader {
+  width: 100%;
+  height: 50vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.section {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.section__title {
+  color: white;
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 10px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.section__description {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 16px;
+  text-align: center;
+  margin: 0 0 40px 0;
+}
+
+/* 장르 버튼들 */
+.series__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  padding: 0 20px;
+}
+
+.series__button {
+  padding: 8px 16px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.series__button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.series__button_active {
+  background: linear-gradient(135deg, #3a3a3a 0%, #1a1a1a 100%);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* 영화 섹션 */
+.movies__section {
+  margin-top: 40px;
+}
+
+.movies__section__title {
+  color: white;
+  font-size: 28px;
+  font-weight: 600;
+  text-align: center;
+  margin: 0 0 30px 0;
+}
+
+.movies__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+  padding: 0 20px;
+}
+
+.no__results {
+  color: white;
+  font-size: 18px;
+  text-align: center;
+  margin: 60px 0;
+}
+
+/* 빈 상태 */
+.empty__state {
+  text-align: center;
+  padding: 100px 20px;
+}
+
+.empty__state p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 20px;
+  margin: 0;
+}
+
+@media screen and (max-width: 1090px) {
+  .movies__grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .section__title {
+    font-size: 24px;
+  }
+
+  .section__description {
+    font-size: 14px;
+  }
+
+  .series__button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  .movies__section__title {
+    font-size: 22px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .movies__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .series__buttons {
+    gap: 10px;
+  }
+
+  .series__button {
+    font-size: 13px;
+    padding: 8px 16px;
+  }
+}
+/* 필터 그룹 */
+.filter__group {
+  margin-bottom: 40px;
+}
+
+.filter__label {
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 15px 20px;
+}
+
+/* OTT 버튼들 */
+.ott__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  padding: 0 20px;
+}
+
+.ott__button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ott__button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.ott__button_active {
+  background: linear-gradient(135deg, #3a3a3a 0%, #1a1a1a 100%);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+.ott__logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+@media screen and (max-width: 768px) {
+  .filter__label {
+    font-size: 16px;
+    margin-left: 10px;
+  }
+
+  .ott__buttons {
+    gap: 10px;
+    padding: 0 10px;
+  }
+
+  .ott__button {
+    padding: 8px 16px;
+    font-size: 13px;
+    gap: 8px;
+  }
+
+  .ott__logo {
+    width: 24px;
+    height: 24px;
+  }
+}

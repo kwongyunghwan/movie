@@ -1,17 +1,24 @@
 .header {
-    background-color: #1a1a2e;
+    background-color: #2c2c2c;
     padding: 15px 40px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     position: sticky;
     top: 0;
     z-index: 100;
 }
+
 .header__container {
     max-width: 1400px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+}
+
+.header__left {
+    display: flex;
     align-items: center;
     gap: 40px;
 }
@@ -23,6 +30,31 @@
     margin: 0;
     cursor: pointer;
     white-space: nowrap;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.header__logo:hover {
+    color: #667eea;
+}
+
+.header__nav {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.header__nav__link {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    white-space: nowrap;
+}
+
+.header__nav__link:hover {
+    color: white;
 }
 
 .header__search {
@@ -52,6 +84,20 @@
     border-color: rgba(255, 255, 255, 0.4);
 }
 
+@media screen and (max-width: 1024px) {
+    .header__left {
+        gap: 20px;
+    }
+
+    .header__nav {
+        gap: 15px;
+    }
+
+    .header__nav__link {
+        font-size: 14px;
+    }
+}
+
 @media screen and (max-width: 768px) {
     .header {
         padding: 15px 20px;
@@ -59,10 +105,29 @@
 
     .header__container {
         gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .header__left {
+        gap: 15px;
     }
 
     .header__logo {
         font-size: 24px;
+    }
+
+    .header__nav {
+        gap: 10px;
+    }
+
+    .header__nav__link {
+        font-size: 13px;
+    }
+
+    .header__search {
+        order: 3;
+        width: 100%;
+        max-width: 100%;
     }
 
     .header__input {
@@ -77,8 +142,20 @@
         gap: 15px;
     }
 
+    .header__left {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .header__nav {
+        gap: 8px;
+    }
+
+    .header__nav__link {
+        font-size: 12px;
+    }
+
     .header__search {
-        max-width: 100%;
         width: 100%;
     }
 }
