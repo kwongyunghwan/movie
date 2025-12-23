@@ -10,25 +10,23 @@ function Home() {
     const [upcomingMovies, setUpcomingMovies] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     
-    const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
+    const API_BASE_URL = process.env.REACT_APP_API_URL;
 
     const getMovies = async () => {
         try {
             // 현재 상영중 데이터
-            const nowPlayingResponse = await (
-                await fetch(
-                    `https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=ko-KR&region=KR&page=1`
-                )
-            ).json();
+            const nowPlayingData = await (await fetch(
+                `${API_BASE_URL}/movies/now-playing`
+            )).json();
 
-            // 공개 예정 데이터 
-            const upcomingResponse = await (
-                await fetch(
-                    `https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=ko-KR&region=KR&page=1`
-                )
-            ).json();
+            // 개봉 예정 데이터
+            const upcomingData = await (await fetch(
+                `${API_BASE_URL}/movies/upcoming`
+            )).json();
+
+            // 오늘 날짜보다 미래인 영화만 필터링 + 개봉일 가까운 순 정렬
             const today = new Date();
-            const upcomingMovies = upcomingResponse.results
+            const upcomingMovies = upcomingData
                 .filter(movie => {
                     if (!movie.release_date) return false;
                     const releaseDate = new Date(movie.release_date);
@@ -37,10 +35,10 @@ function Home() {
                 .sort((a, b) => {
                     const dateA = new Date(a.release_date);
                     const dateB = new Date(b.release_date);
-                    return dateA - dateB; // 오름차순 (가까운 날짜가 먼저)
+                    return dateA - dateB;
                 });
 
-            setNowPlayingMovies(nowPlayingResponse.results);
+            setNowPlayingMovies(nowPlayingData);
             setUpcomingMovies(upcomingMovies);
             setLoading(false);
 
@@ -65,7 +63,7 @@ function Home() {
 
     return (
         <>
-            <Header onSearch={handleSearch} />
+            <Header onSearch={handleSearch} showSearch={false} />
             <div className={styles.container}>
                 {loading ? (
                     <div className={styles.loader}>

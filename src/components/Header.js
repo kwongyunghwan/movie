@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import styles from "./Header.module.css";
 
-function Header({ onSearch }) {
+function Header({ onSearch, showSearch = true }) {
     const [searchTerm, setSearchTerm] = useState("");
 
     const handleSubmit = (e) => {
@@ -23,7 +23,7 @@ function Header({ onSearch }) {
             <div className={styles.header__container}>
                 <div className={styles.header__left}>
                     <Link to="/" className={styles.header__logo}>
-                        영추사
+                        영목사
                     </Link>
                     <nav className={styles.header__nav}>
                         <Link to="/" className={styles.header__nav__link}>
@@ -33,20 +33,22 @@ function Header({ onSearch }) {
                             인기영화
                         </Link>
                         <Link to="/series" className={styles.header__nav__link}>
-                            시리즈별 영화
+                            장르별 영화
                         </Link>
                     </nav>
                 </div>
-                
-                <form onSubmit={handleSubmit} className={styles.header__search}>
-                    <input
-                        type="text"
-                        placeholder="영화를 검색해보세요."
-                        value={searchTerm}
-                        onChange={handleChange}
-                        className={styles.header__input}
-                    />
-                </form>
+
+                {showSearch && (
+                    <form onSubmit={handleSubmit} className={styles.header__search}>
+                        <input
+                            type="text"
+                            placeholder="영화를 검색해보세요."
+                            value={searchTerm}
+                            onChange={handleChange}
+                            className={styles.header__input}
+                        />
+                    </form>
+                )}
             </div>
         </header>
     );
@@ -54,6 +56,7 @@ function Header({ onSearch }) {
 
 Header.propTypes = {
     onSearch: PropTypes.func.isRequired,
+    showSearch: PropTypes.bool,
 };
 
 export default Header;

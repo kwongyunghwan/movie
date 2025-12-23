@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import Header from "../components/Header";
 import Movie from "../components/Movie";
 import styles from "./Series.module.css";
@@ -11,127 +11,131 @@ function Series() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedGenre, setSelectedGenre] = useState(null);
     const [selectedOTT, setSelectedOTT] = useState(null);
-    
-    const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
-    
-    // 장르 목록 가져오기
-    const getGenres = async () => {
-        try {
-            const data = await (await fetch(
-                `https://api.themoviedb.org/3/genre/movie/list?api_key=${API_KEY}&language=ko-KR`
-            )).json();
-            
-            setGenres(data.genres);
-            
-            // 액션 장르 찾기 (ID: 28)
-            const actionGenre = data.genres.find(genre => genre.id === 28);
-            if (actionGenre) {
-                setSelectedGenre(actionGenre);
-                getMoviesByGenreAndOTT(actionGenre.id, null);
-            }
-        } catch (error) {
-            console.error("장르 데이터 로딩 실패:", error);
-        }
-    };
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
 
-    // OTT 제공자 목록 가져오기
-    const getOTTProviders = async () => {
-        try {
-            const data = await (await fetch(
-                `https://api.themoviedb.org/3/watch/providers/movie?api_key=${API_KEY}&language=ko-KR&watch_region=KR`
-            )).json();
-            
-            setOttProviders(data.results.slice(0, 10)); // 상위 10개만
-        } catch (error) {
-            console.error("OTT 제공자 데이터 로딩 실패:", error);
-        }
-    };
+    const API_BASE_URL = process.env.REACT_APP_API_URL;
 
-    useEffect(() => {
-        getGenres();
-        getOTTProviders();
-    }, []);
-    
-    const getMoviesByGenreAndOTT = async (genreId, ottId) => {
+
+    // 영화 데이터 가져오기
+    const getMoviesByGenreAndOTT = useCallback(async (genreId, ottId, page = 1) => {
         setLoading(true);
         try {
-            // OTT 필터가 있으면 추가
-            const ottParam = ottId ? `&with_watch_providers=${ottId}&watch_region=KR` : '';
-            
+            const ottParam = ottId ? `&ottId=${ottId}` : '';
+
             const data = await (await fetch(
-                `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&language=ko-KR&with_genres=${genreId}&sort_by=vote_average.desc&vote_count.gte=1000&page=1${ottParam}`
+                `${API_BASE_URL}/movies/genre/${genreId}?page=${page}${ottParam}`
             )).json();
-            
-            // 각 영화의 OTT 정보 가져오기
-            const moviesWithOTT = await Promise.all(
-                data.results.map(async (movie) => {
-                    const ottData = await (await fetch(
-                        `https://api.themoviedb.org/3/movie/${movie.id}/watch/providers?api_key=${API_KEY}`
-                    )).json();
-                    
-                    const flatrate = ottData.results?.KR?.flatrate || [];
-                    const buy = ottData.results?.KR?.buy || [];
-                    const uniqueBuy = buy.filter(
-                        b => !flatrate.some(f => f.provider_name === b.provider_name)
-                    );
-                    const allProviders = [...flatrate, ...uniqueBuy];
-                    
-                    return {
-                        ...movie,
-                        ottProviders: allProviders
-                    };
-                })
-            );
-            
-            setMovies(moviesWithOTT);
+
+            setMovies(data.results);
+            setTotalPages(data.total_pages);
             setLoading(false);
         } catch (error) {
             console.error("영화 데이터 로딩 실패:", error);
             setLoading(false);
         }
-    };
+    }, [API_BASE_URL]);
 
-    const handleGenreClick = (genre) => {
+    // 초기 데이터 로드
+    useEffect(() => {
+        const initializeData = async () => {
+            try {
+                // 1. 장르 목록 가져오기
+                const genresData = await (await fetch(
+                    `${API_BASE_URL}/movies/genres`
+                )).json();
+
+                setGenres(genresData.genres);
+
+                // 2. OTT 제공자 목록 가져오기
+                const ottData = await (await fetch(
+                    `${API_BASE_URL}/movies/providers`
+                )).json();
+
+                setOttProviders(ottData);
+
+                // 3. 액션 장르 찾아서 초기 로드
+                const actionGenre = genresData.genres.find(genre => genre.id === 28);
+                if (actionGenre) {
+                    setSelectedGenre(actionGenre);
+                    await getMoviesByGenreAndOTT(actionGenre.id, null, 1);
+                }
+            } catch (error) {
+                console.error("초기 데이터 로딩 실패:", error);
+            }
+        };
+
+        initializeData();
+    }, [API_BASE_URL, getMoviesByGenreAndOTT]);
+
+    const handleGenreClick = useCallback((genre) => {
         setSelectedGenre(genre);
-        getMoviesByGenreAndOTT(genre.id, selectedOTT?.provider_id);
-    };
+        setCurrentPage(1);
+        getMoviesByGenreAndOTT(genre.id, selectedOTT?.provider_id, 1);
+    }, [selectedOTT, getMoviesByGenreAndOTT]);
 
-    const handleOTTClick = (ott) => {
-        // 같은 OTT 클릭 시 해제
+    const handleOTTClick = useCallback((ott) => {
         if (selectedOTT?.provider_id === ott.provider_id) {
             setSelectedOTT(null);
-            getMoviesByGenreAndOTT(selectedGenre.id, null);
+            setCurrentPage(1);
+            getMoviesByGenreAndOTT(selectedGenre.id, null, 1);
         } else {
             setSelectedOTT(ott);
-            getMoviesByGenreAndOTT(selectedGenre.id, ott.provider_id);
+            setCurrentPage(1);
+            getMoviesByGenreAndOTT(selectedGenre.id, ott.provider_id, 1);
         }
-    };
+    }, [selectedGenre, selectedOTT, getMoviesByGenreAndOTT]);
 
-    const filteredMovies = movies.filter(movie => 
-        movie.title.toLowerCase().includes(searchTerm.toLowerCase())
+    const handlePageChange = useCallback((page) => {
+        setCurrentPage(page);
+        getMoviesByGenreAndOTT(selectedGenre.id, selectedOTT?.provider_id, page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [selectedGenre, selectedOTT, getMoviesByGenreAndOTT]);
+
+    const handlePrevPage = useCallback(() => {
+        if (currentPage > 1) {
+            handlePageChange(1);  // 첫 페이지로
+        }
+    }, [currentPage, handlePageChange]);
+
+    const handleNextPage = useCallback(() => {
+        if (currentPage < totalPages) {
+            handlePageChange(totalPages);  // 마지막 페이지로
+        }
+    }, [currentPage, totalPages, handlePageChange]);
+
+    const filteredMovies = useMemo(() =>
+        movies.filter(movie =>
+            movie.title.toLowerCase().includes(searchTerm.toLowerCase())
+        ),
+        [movies, searchTerm]
     );
 
-    const handleSearch = (term) => {
+    const handleSearch = useCallback((term) => {
         setSearchTerm(term);
-    };
+    }, []);
+
+    // 페이지 번호 배열 생성
+    const pageNumbers = useMemo(() =>
+        Array.from({ length: totalPages }, (_, i) => i + 1),
+        [totalPages]
+    );
 
     return (
         <>
             <Header onSearch={handleSearch} />
             <div className={styles.container}>
                 <section className={styles.section}>
-                    <h2 className={styles.section__title}>시리즈별 영화</h2>
+                    <h2 className={styles.section__title}>장르별 영화</h2>
 
                     {/* 장르 버튼들 */}
                     <div className={styles.filter__group}>
-                        <h3 className={styles.filter__label}>장르</h3>
                         <div className={styles.series__buttons}>
                             {genres.map((genre) => (
                                 <button
                                     key={genre.id}
-                                    className={`${styles.series__button} ${
-                                        selectedGenre?.id === genre.id ? styles.series__button_active : ''
-                                    }`}
+                                    className={`${styles.series__button} ${selectedGenre?.id === genre.id ? styles.series__button_active : ''
+                                        }`}
                                     onClick={() => handleGenreClick(genre)}
                                 >
                                     {genre.name}
@@ -142,24 +146,23 @@ function Series() {
 
                     {/* OTT 버튼들 */}
                     <div className={styles.filter__group}>
-                        <h3 className={styles.filter__label}>OTT 플랫폼</h3>
+                        <h3 className={styles.filter__label}>OTT</h3>
                         <div className={styles.ott__buttons}>
                             {ottProviders.map((ott) => (
                                 <button
                                     key={ott.provider_id}
-                                    className={`${styles.ott__button} ${
-                                        selectedOTT?.provider_id === ott.provider_id ? styles.ott__button_active : ''
-                                    }`}
+                                    className={`${styles.ott__button} ${selectedOTT?.provider_id === ott.provider_id ? styles.ott__button_active : ''
+                                        }`}
                                     onClick={() => handleOTTClick(ott)}
+                                    title={ott.provider_name}
                                 >
                                     {ott.logo_path && (
-                                        <img 
+                                        <img
                                             src={`https://image.tmdb.org/t/p/original${ott.logo_path}`}
                                             alt={ott.provider_name}
                                             className={styles.ott__logo}
                                         />
                                     )}
-                                    <span>{ott.provider_name}</span>
                                 </button>
                             ))}
                         </div>
@@ -195,6 +198,40 @@ function Series() {
                                     <p className={styles.no__results}>검색 결과가 없습니다</p>
                                 )}
                             </div>
+
+                            {/* 페이지네이션 */}
+                            {!searchTerm && totalPages > 1 && (
+                                <div className={styles.pagination}>
+                                    <button
+                                        className={styles.pagination__button}
+                                        onClick={handlePrevPage}
+                                        disabled={currentPage === 1}
+                                        aria-label="이전 페이지"
+                                    >
+                                        ←
+                                    </button>
+
+                                    {pageNumbers.map((page) => (
+                                        <button
+                                            key={page}
+                                            className={`${styles.pagination__button} ${currentPage === page ? styles.pagination__button_active : ''
+                                                }`}
+                                            onClick={() => handlePageChange(page)}
+                                        >
+                                            {page}
+                                        </button>
+                                    ))}
+
+                                    <button
+                                        className={styles.pagination__button}
+                                        onClick={handleNextPage}
+                                        disabled={currentPage === totalPages}
+                                        aria-label="다음 페이지"
+                                    >
+                                        →
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className={styles.empty__state}>

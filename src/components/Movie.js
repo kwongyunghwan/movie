@@ -61,20 +61,16 @@ function Movie({ id, coverImg, title, year, summary, genres, rating, ottProvider
                 {/* OTT 정보 */}
                 {ottProviders && ottProviders.length > 0 && (
                     <div className={styles.movie__ott}>
-                        <ul className={styles.movie__ott__list}>
-                            {ottProviders.map((provider, index) => (
-                                <li key={`${id}-ott-${index}`} className={styles.movie__ott__item}>
-                                    {provider.logo_path && (
-                                        <img
-                                            src={`https://image.tmdb.org/t/p/original${provider.logo_path}`}
-                                            alt={provider.provider_name}
-                                            className={styles.movie__ott__logo}
-                                        />
-                                    )}
-                                    <span>{provider.provider_name}</span>
-                                </li>
-                            ))}
-                        </ul>
+                        {ottProviders.map((provider, index) => (
+                            provider.logo_path && (
+                                <img
+                                    key={`${id}-ott-${index}`}
+                                    src={`https://image.tmdb.org/t/p/original${provider.logo_path}`}
+                                    alt={provider.provider_name}
+                                    className={styles.ott__logo}
+                                />
+                            )
+                        ))}
                     </div>
                 )}
             </div>

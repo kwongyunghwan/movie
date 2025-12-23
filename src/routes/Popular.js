@@ -8,40 +8,18 @@ function Popular() {
     const [movies, setMovies] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     
-    const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
+    const API_BASE_URL = process.env.REACT_APP_API_URL;
     
     const getMovies = async () => {
         try {
-            const popularData = await (await fetch(
-                `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=ko-KR&region=KR&page=1`
+            const data = await (await fetch(
+                `${API_BASE_URL}/movies/popular`
             )).json();
-            
-            // OTT 정보 추가
-            const popularWithOTT = await Promise.all(
-                popularData.results.map(async (movie) => {
-                    const ottResponse = await fetch(
-                        `https://api.themoviedb.org/3/movie/${movie.id}/watch/providers?api_key=${API_KEY}`
-                    );
-                    const ottData = await ottResponse.json();
-                    
-                    const flatrate = ottData.results?.KR?.flatrate || [];
-                    const buy = ottData.results?.KR?.buy || [];
-                    const uniqueBuy = buy.filter(
-                        b => !flatrate.some(f => f.provider_name === b.provider_name)
-                    );
-                    const allProviders = [...flatrate, ...uniqueBuy];
-                    
-                    return {
-                        ...movie,
-                        ottProviders: allProviders
-                    };
-                })
-            );
-            
-            setMovies(popularWithOTT);
+
+            setMovies(data.results);
             setLoading(false);
         } catch (error) {
-            console.error("영화 데이터 로딩 실패:", error);
+            console.error("인기 영화 데이터 로딩 실패:", error);
             setLoading(false);
         }
     };

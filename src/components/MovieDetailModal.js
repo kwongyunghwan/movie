@@ -1,56 +1,43 @@
 import { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import styles from "./MovieDetailModal.module.css";
 
 function MovieDetailModal({ movie, ottProviders }) {
+    const { id } = useParams();
     const history = useHistory();
     const [detailedMovie, setDetailedMovie] = useState(movie);
     const [loading, setLoading] = useState(true);
 
+    const API_BASE_URL = process.env.REACT_APP_API_URL;
     useEffect(() => {
         // body 스크롤 막기
         document.body.style.overflow = 'hidden';
+        
+        return () => {
+            // 모달 닫힐 때 스크롤 복구
+            document.body.style.overflow = 'unset';
+        };
+    }, []);
 
-        // 상세 정보 가져오기
+     useEffect(() => {
         const getMovieDetails = async () => {
             try {
-                const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
-
-                // 기본 상세 정보
+                
                 const data = await (await fetch(
-                    `https://api.themoviedb.org/3/movie/${movie.id}?api_key=${API_KEY}&language=ko-KR`
+                    `${API_BASE_URL}/movies/detail/${id}`
                 )).json();
-
-                // 한국 개봉일 정보
-                const releaseDatesData = await (await fetch(
-                    `https://api.themoviedb.org/3/movie/${movie.id}/release_dates?api_key=${API_KEY}`
-                )).json();
-
-                // 한국(KR) 개봉일 찾기
-                const krRelease = releaseDatesData.results.find(r => r.iso_3166_1 === 'KR');
-                const krReleaseDate = krRelease?.release_dates?.[0]?.release_date;
-
-                // 한국 개봉일이 있으면 사용, 없으면 원래 개봉일 사용
-                if (krReleaseDate) {
-                    data.release_date = krReleaseDate.split('T')[0];
-                }
 
                 setDetailedMovie(data);
                 setLoading(false);
             } catch (error) {
-                console.error("상세 정보 로딩 실패:", error);
+                console.error("영화 상세 정보 로딩 실패:", error);
                 setLoading(false);
             }
         };
 
         getMovieDetails();
-
-        return () => {
-            // body 스크롤 복구
-            document.body.style.overflow = 'unset';
-        };
-    }, [movie.id]);
+    }, [id, API_BASE_URL]);
 
     const handleClose = () => {
         history.goBack();
@@ -103,11 +90,9 @@ function MovieDetailModal({ movie, ottProviders }) {
                             <span className={styles.detail__year}>
                                 <strong>개봉일:</strong> {detailedMovie.release_date}
                             </span>
-                            {detailedMovie.vote_average && (
-                                <span className={styles.detail__rating}>
-                                    <strong>평균 평점:</strong> {detailedMovie.vote_average.toFixed(1)}
-                                </span>
-                            )}
+                            <span className={styles.detail__rating}>
+    <strong>평균 평점:</strong> {detailedMovie.vote_average > 0 ? detailedMovie.vote_average.toFixed(1) : '없음'}
+</span>
                             {detailedMovie.runtime && (
                                 <span className={styles.detail__runtime}>
                                     <strong>상영 시간:</strong> {detailedMovie.runtime}분

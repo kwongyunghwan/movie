@@ -24,24 +24,19 @@
   color: white;
   font-size: 32px;
   font-weight: 700;
-  text-align: center;
-  margin: 0 0 10px 0;
+  text-align: left;
+  margin: 0 0 30px 0;
+  padding-left: 20px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.section__description {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 16px;
-  text-align: center;
-  margin: 0 0 40px 0;
-}
 
 /* 장르 버튼들 */
 .series__buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 0 20px;
 }
 
@@ -50,7 +45,7 @@
   background-color: rgba(255, 255, 255, 0.1);
   color: white;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 20px;
+  border-radius: 5px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -77,15 +72,17 @@
   color: white;
   font-size: 28px;
   font-weight: 600;
-  text-align: center;
+  text-align: left;
   margin: 0 0 30px 0;
+  padding-left: 20px;
 }
 
 .movies__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
   padding: 0 20px;
+  margin-bottom: 40px;
 }
 
 .no__results {
@@ -107,14 +104,17 @@
   margin: 0;
 }
 
-@media screen and (max-width: 1090px) {
+@media screen and (max-width: 1200px) {
   .movies__grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   }
 }
 
 @media screen and (max-width: 768px) {
+  .movies__grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+  }
   .section__title {
     font-size: 24px;
   }
@@ -164,7 +164,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 0 20px;
 }
 
@@ -221,5 +221,59 @@
   .ott__logo {
     width: 24px;
     height: 24px;
+  }
+}
+
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 40px 0;
+  padding: 20px;
+}
+
+.pagination__button {
+  min-width: 40px;
+  height: 40px;
+  padding: 8px 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pagination__button:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.pagination__button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pagination__button_active {
+  background: linear-gradient(135deg, #3a3a3a 0%, #1a1a1a 100%);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+@media screen and (max-width: 768px) {
+  .pagination {
+    gap: 4px;
+    padding: 20px 10px;
+  }
+
+  .pagination__button {
+    min-width: 36px;
+    height: 36px;
+    font-size: 14px;
   }
 }
