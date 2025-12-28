@@ -151,6 +151,32 @@
     font-size: 13px;
     font-weight: 500;
 }
+.detail__trailer {
+  margin: 20px 0;
+}
+
+.trailer__button {
+  display: inline-block;
+  background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
+  color: white;
+  padding: 12px 30px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+}
+
+.trailer__button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(229, 9, 20, 0.5);
+  background: linear-gradient(135deg, #f40612 0%, #c91119 100%);
+}
+
+.trailer__button:active {
+  transform: translateY(0);
+}
 .detail__overview {
   margin-bottom: 25px;
 }

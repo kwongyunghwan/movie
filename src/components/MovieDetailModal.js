@@ -10,20 +10,20 @@ function MovieDetailModal({ movie, ottProviders }) {
     const [loading, setLoading] = useState(true);
 
     const API_BASE_URL = process.env.REACT_APP_API_URL;
+    
     useEffect(() => {
         // body 스크롤 막기
         document.body.style.overflow = 'hidden';
-        
+
         return () => {
             // 모달 닫힐 때 스크롤 복구
             document.body.style.overflow = 'unset';
         };
     }, []);
 
-     useEffect(() => {
+    useEffect(() => {
         const getMovieDetails = async () => {
             try {
-                
                 const data = await (await fetch(
                     `${API_BASE_URL}/movies/detail/${id}`
                 )).json();
@@ -46,6 +46,20 @@ function MovieDetailModal({ movie, ottProviders }) {
     const handleBackdropClick = (e) => {
         if (e.target === e.currentTarget) {
             handleClose();
+        }
+    };
+
+    // 예고편 URL 생성 함수 추가
+    const getTrailerUrl = (trailer) => {
+        if (!trailer) return null;
+        
+        switch (trailer.site) {
+            case 'YouTube':
+                return `https://www.youtube.com/watch?v=${trailer.key}`;
+            case 'Vimeo':
+                return `https://vimeo.com/${trailer.key}`;
+            default:
+                return null;
         }
     };
 
@@ -91,8 +105,8 @@ function MovieDetailModal({ movie, ottProviders }) {
                                 <strong>개봉일:</strong> {detailedMovie.release_date}
                             </span>
                             <span className={styles.detail__rating}>
-    <strong>평균 평점:</strong> {detailedMovie.vote_average > 0 ? detailedMovie.vote_average.toFixed(1) : '없음'}
-</span>
+                                <strong>평균 평점:</strong> {detailedMovie.vote_average > 0 ? detailedMovie.vote_average.toFixed(1) : '없음'}
+                            </span>
                             {detailedMovie.runtime && (
                                 <span className={styles.detail__runtime}>
                                     <strong>상영 시간:</strong> {detailedMovie.runtime}분
@@ -117,6 +131,19 @@ function MovieDetailModal({ movie, ottProviders }) {
                             <p>{detailedMovie.overview || "줄거리 정보가 없습니다."}</p>
                         </div>
 
+                        {/* 예고편 버튼 - 줄거리 바로 아래로 이동 */}
+                        {detailedMovie.trailer && getTrailerUrl(detailedMovie.trailer) && (
+                            <div className={styles.detail__trailer}>
+                                <a
+                                    href={getTrailerUrl(detailedMovie.trailer)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={styles.trailer__button}>
+                                    ▶ 예고편 재생
+                                </a>
+                            </div>
+                        )}
+
                         {/* OTT 정보 */}
                         {ottProviders && ottProviders.length > 0 && (
                             <div className={styles.detail__ott}>
@@ -138,24 +165,26 @@ function MovieDetailModal({ movie, ottProviders }) {
                             </div>
                         )}
 
-                        {/* 추가 정보 */}
-                        {(detailedMovie.budget > 0 || detailedMovie.revenue > 0 || (detailedMovie.production_companies && detailedMovie.production_companies.length > 0)) && (
-                            <div className={styles.detail__extra}>
+                        {/* 제작비/수익 */}
+                        {(detailedMovie.budget > 0 || detailedMovie.revenue > 0) && (
+                            <div className={styles.detail__financial}>
                                 {detailedMovie.budget > 0 && (
-                                    <div className={styles.detail__extra__item}>
+                                    <div>
                                         <strong>제작비:</strong> ${detailedMovie.budget.toLocaleString()}
                                     </div>
                                 )}
                                 {detailedMovie.revenue > 0 && (
-                                    <div className={styles.detail__extra__item}>
+                                    <div>
                                         <strong>수익:</strong> ${detailedMovie.revenue.toLocaleString()}
                                     </div>
                                 )}
-                                {detailedMovie.production_companies && detailedMovie.production_companies.length > 0 && (
-                                    <div className={styles.detail__extra__item}>
-                                        <strong>제작사:</strong> {detailedMovie.production_companies.map(c => c.name).join(', ')}
-                                    </div>
-                                )}
+                            </div>
+                        )}
+
+                        {/* 제작사 */}
+                        {detailedMovie.production_companies && detailedMovie.production_companies.length > 0 && (
+                            <div className={styles.detail__companies}>
+                                <strong>제작사:</strong> {detailedMovie.production_companies.map(c => c.name).join(', ')}
                             </div>
                         )}
                     </div>

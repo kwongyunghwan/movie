@@ -13,9 +13,9 @@ function Series() {
     const [selectedOTT, setSelectedOTT] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
+    const [isSearching, setIsSearching] = useState(false);  // 추가
 
     const API_BASE_URL = process.env.REACT_APP_API_URL;
-
 
     // 영화 데이터 가져오기
     const getMoviesByGenreAndOTT = useCallback(async (genreId, ottId, page = 1) => {
@@ -36,30 +36,56 @@ function Series() {
         }
     }, [API_BASE_URL]);
 
-    // 초기 데이터 로드
+    // 검색 함수 (백엔드 호출)
+const searchMovies = useCallback(async (query) => {
+    if (!query.trim()) {
+        setIsSearching(false);
+        if (selectedGenre) {
+            getMoviesByGenreAndOTT(selectedGenre.id, selectedOTT?.provider_id, currentPage);
+        }
+        return;
+    }
+
+    setLoading(true);
+    setIsSearching(true);
+    try {
+        // "전체" 선택 시 genreParam 안 보내기
+        const genreParam = selectedGenre && selectedGenre.id !== 'all' 
+            ? `&genreId=${selectedGenre.id}` 
+            : '';
+        const ottParam = selectedOTT ? `&ottId=${selectedOTT.provider_id}` : '';
+        
+        const data = await (await fetch(
+            `${API_BASE_URL}/movies/search?query=${encodeURIComponent(query)}${genreParam}${ottParam}`
+        )).json();
+        
+        setMovies(data.results);
+        setTotalPages(0);
+        setLoading(false);
+    } catch (error) {
+        console.error("검색 실패:", error);
+        setLoading(false);
+    }
+}, [API_BASE_URL, selectedGenre, selectedOTT, getMoviesByGenreAndOTT, currentPage]);
+
     useEffect(() => {
         const initializeData = async () => {
             try {
-                // 1. 장르 목록 가져오기
                 const genresData = await (await fetch(
                     `${API_BASE_URL}/movies/genres`
                 )).json();
 
                 setGenres(genresData.genres);
 
-                // 2. OTT 제공자 목록 가져오기
                 const ottData = await (await fetch(
                     `${API_BASE_URL}/movies/providers`
                 )).json();
 
                 setOttProviders(ottData);
 
-                // 3. 액션 장르 찾아서 초기 로드
-                const actionGenre = genresData.genres.find(genre => genre.id === 28);
-                if (actionGenre) {
-                    setSelectedGenre(actionGenre);
-                    await getMoviesByGenreAndOTT(actionGenre.id, null, 1);
-                }
+                // 전체로 시작
+                setSelectedGenre({ id: 'all', name: '전체' });
+                await getMoviesByGenreAndOTT('all', null, 1);
             } catch (error) {
                 console.error("초기 데이터 로딩 실패:", error);
             }
@@ -71,19 +97,18 @@ function Series() {
     const handleGenreClick = useCallback((genre) => {
         setSelectedGenre(genre);
         setCurrentPage(1);
+        setSearchTerm("");
+        setIsSearching(false);
         getMoviesByGenreAndOTT(genre.id, selectedOTT?.provider_id, 1);
     }, [selectedOTT, getMoviesByGenreAndOTT]);
 
     const handleOTTClick = useCallback((ott) => {
-        if (selectedOTT?.provider_id === ott.provider_id) {
-            setSelectedOTT(null);
-            setCurrentPage(1);
-            getMoviesByGenreAndOTT(selectedGenre.id, null, 1);
-        } else {
-            setSelectedOTT(ott);
-            setCurrentPage(1);
-            getMoviesByGenreAndOTT(selectedGenre.id, ott.provider_id, 1);
-        }
+        const newOTT = selectedOTT?.provider_id === ott.provider_id ? null : ott;
+        setSelectedOTT(newOTT);
+        setCurrentPage(1);
+        setSearchTerm("");
+        setIsSearching(false);
+        getMoviesByGenreAndOTT(selectedGenre.id, newOTT?.provider_id, 1);
     }, [selectedGenre, selectedOTT, getMoviesByGenreAndOTT]);
 
     const handlePageChange = useCallback((page) => {
@@ -94,28 +119,21 @@ function Series() {
 
     const handlePrevPage = useCallback(() => {
         if (currentPage > 1) {
-            handlePageChange(1);  // 첫 페이지로
+            handlePageChange(1);
         }
     }, [currentPage, handlePageChange]);
 
     const handleNextPage = useCallback(() => {
         if (currentPage < totalPages) {
-            handlePageChange(totalPages);  // 마지막 페이지로
+            handlePageChange(totalPages);
         }
     }, [currentPage, totalPages, handlePageChange]);
 
-    const filteredMovies = useMemo(() =>
-        movies.filter(movie =>
-            movie.title.toLowerCase().includes(searchTerm.toLowerCase())
-        ),
-        [movies, searchTerm]
-    );
-
     const handleSearch = useCallback((term) => {
         setSearchTerm(term);
-    }, []);
+        searchMovies(term);
+    }, [searchMovies]);
 
-    // 페이지 번호 배열 생성
     const pageNumbers = useMemo(() =>
         Array.from({ length: totalPages }, (_, i) => i + 1),
         [totalPages]
@@ -131,6 +149,16 @@ function Series() {
                     {/* 장르 버튼들 */}
                     <div className={styles.filter__group}>
                         <div className={styles.series__buttons}>
+                            {/* 전체 버튼 */}
+                            <button
+                                className={`${styles.series__button} ${selectedGenre?.id === 'all' ? styles.series__button_active : ''
+                                    }`}
+                                onClick={() => handleGenreClick({ id: 'all', name: '전체' })}
+                            >
+                                전체
+                            </button>
+
+                            {/* 장르 버튼들 */}
                             {genres.map((genre) => (
                                 <button
                                     key={genre.id}
@@ -176,12 +204,15 @@ function Series() {
                     ) : selectedGenre ? (
                         <div className={styles.movies__section}>
                             <h3 className={styles.movies__section__title}>
-                                {selectedGenre.name}
-                                {selectedOTT && ` · ${selectedOTT.provider_name}`}
+                                {isSearching && searchTerm
+                                    ? `"${searchTerm}" 검색 결과`
+                                    : selectedGenre.name
+                                }
+                                {!isSearching && selectedOTT && ` · ${selectedOTT.provider_name}`}
                             </h3>
                             <div className={styles.movies__grid}>
-                                {(searchTerm ? filteredMovies : movies).length > 0 ? (
-                                    (searchTerm ? filteredMovies : movies).map((movie) => (
+                                {movies.length > 0 ? (
+                                    movies.map((movie) => (
                                         <Movie
                                             key={`genre-${movie.id}`}
                                             id={movie.id}
@@ -195,12 +226,17 @@ function Series() {
                                         />
                                     ))
                                 ) : (
-                                    <p className={styles.no__results}>검색 결과가 없습니다</p>
+                                    <p className={styles.no__results}>
+                                        {isSearching
+                                            ? '검색 결과가 없습니다'
+                                            : '영화가 없습니다'
+                                        }
+                                    </p>
                                 )}
                             </div>
 
-                            {/* 페이지네이션 */}
-                            {!searchTerm && totalPages > 1 && (
+                            {/* 페이지네이션 - 검색 중이 아닐 때만 */}
+                            {!isSearching && !searchTerm && totalPages > 1 && (
                                 <div className={styles.pagination}>
                                     <button
                                         className={styles.pagination__button}
@@ -211,16 +247,18 @@ function Series() {
                                         ←
                                     </button>
 
-                                    {pageNumbers.map((page) => (
-                                        <button
-                                            key={page}
-                                            className={`${styles.pagination__button} ${currentPage === page ? styles.pagination__button_active : ''
-                                                }`}
-                                            onClick={() => handlePageChange(page)}
-                                        >
-                                            {page}
-                                        </button>
-                                    ))}
+                                    <div className={styles.pagination__numbers}>
+                                        {pageNumbers.map((page) => (
+                                            <button
+                                                key={page}
+                                                className={`${styles.pagination__button} ${currentPage === page ? styles.pagination__button_active : ''
+                                                    }`}
+                                                onClick={() => handlePageChange(page)}
+                                            >
+                                                {page}
+                                            </button>
+                                        ))}
+                                    </div>
 
                                     <button
                                         className={styles.pagination__button}
