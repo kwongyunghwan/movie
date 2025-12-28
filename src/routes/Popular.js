@@ -37,7 +37,7 @@ function Popular() {
                     </div>
                 ) : (
                     <section className={styles.section}>
-                        <h2 className={styles.section__title}>🔥 인기 영화</h2>
+                        <h2 className={styles.section__title}>인기 영화</h2>
                         <div className={styles.movies__grid}>
                             {movies.map((movie) => (
                                 <Movie
