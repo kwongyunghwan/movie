@@ -48,9 +48,6 @@ function Home() {
         }
     }
 
-    console.log('now',nowPlayingMovies);
-    console.log('up',upcomingMovies);
-
     useEffect(() => {
         getMovies();
     }, []);

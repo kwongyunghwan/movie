@@ -1,70 +1,99 @@
-# Getting Started with Create React App
+# 🎬 영목사 (영화 목록 보여주는 사이트)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React + Node.js 기반 영화 정보 웹 애플리케이션
 
-## Available Scripts
+## ✨ 주요 기능
 
-In the project directory, you can run:
+- 현재 상영중/개봉 예정 영화
+- 인기 영화 TOP 40
+- 장르별 영화 탐색
+- OTT 플랫폼 필터링
+- 영화 검색 (장르/OTT 통합)
+- 예고편 링크
+- 반응형 디자인
 
-### `npm start`
+## 🛠️ 기술 스택
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Frontend
+- React 19.2
+- React Router v5
+- Framer Motion (3D Carousel)
+- CSS Modules
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Backend
+- Node.js + Express 5
+- Axios
+- NodeCache (캐싱)
+- TMDB API
 
-### `npm test`
+## 실행 방법
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 1. 백엔드 서버
+```bash
+cd server
+npm install
+cp .env.example .env  # API 키 입력
+npm start
+```
 
-### `npm run build`
+### 2. 프론트엔드
+```bash
+npm install
+npm start
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 프로젝트 구조
+```
+movie/
+├── public/
+├── server/
+│   ├── routes/
+│   │   └── movies.js
+│   ├── server.js
+│   ├── .env
+│   └── package.json
+├── src/
+│   ├── components/
+│   ├── routes/
+│   └── App.js
+└── package.json
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 환경 변수
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### server/.env
+```
+TMDB_API_KEY=your_api_key
+PORT=3001
+TMDB_BASE_URL=https://api.themoviedb.org/3
+```
 
-### `npm run eject`
+### .env (프로젝트 루트)
+```
+REACT_APP_API_URL=http://localhost:3001/api
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## API 엔드포인트
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- `GET /api/movies/genres` - 장르 목록
+- `GET /api/movies/providers` - OTT 제공자
+- `GET /api/movies/genre/:id` - 장르별 영화 (40개)
+- `GET /api/movies/popular` - 인기 영화 (40개)
+- `GET /api/movies/search` - 영화 검색
+- `GET /api/movies/detail/:id` - 영화 상세
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 🎨 주요 기능 상세
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### 3D Carousel
+- Framer Motion 애니메이션
+- 5개 슬라이드 동시 표시
+- useMemo/useCallback 최적화
 
-## Learn More
+### 통합 검색
+- 장르 + OTT 필터 동시 적용
+- 전체 영화 검색 지원
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### 성능 최적화
+- 서버 캐싱 (10분 TTL)
+- API 호출 95% 감소
+- 40개 영화 배치 로딩
