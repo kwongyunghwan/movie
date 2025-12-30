@@ -1,4 +1,13 @@
 # 영목사 (영화 목록 보여주는 사이트)
+<메인홈>
+<img width="1034" height="880" alt="image" src="https://github.com/user-attachments/assets/a64d2875-fc70-4dad-a296-601ec703c27e" />
+
+<인기 영화>
+<img width="1053" height="905" alt="image" src="https://github.com/user-attachments/assets/02d4e340-6342-475b-b2bc-f5053a8fbc20" />
+
+<장르별 영화>
+<img width="1019" height="887" alt="image" src="https://github.com/user-attachments/assets/c66f86fc-8be1-4a56-a53c-dd97d97199c1" />
+
 
 React + Node.js 기반 영화 정보 웹 애플리케이션
 
