@@ -1,4 +1,8 @@
 # 영목사 (영화 목록 보여주는 사이트)
+React + Node.js 기반 영화 정보 웹 애플리케이션
+
+![MongoDB](https://img.shields.io/badge/Node.js-green?style=flat-square&logo=Node.js)
+![React](https://img.shields.io/badge/React-18-blue?style=flat-square&logo=react)
 ## 메인홈
 <img width="1034" height="880" alt="image" src="https://github.com/user-attachments/assets/a64d2875-fc70-4dad-a296-601ec703c27e" />
 
@@ -7,9 +11,6 @@
 
 ## 장르별 영화
 <img width="1019" height="887" alt="image" src="https://github.com/user-attachments/assets/c66f86fc-8be1-4a56-a53c-dd97d97199c1" />
-
-
-React + Node.js 기반 영화 정보 웹 애플리케이션
 
 ## 주요 기능
 
