@@ -12,7 +12,7 @@ React + Node.js 기반 영화 정보 웹 애플리케이션
 - 예고편 링크
 - 반응형 디자인
 
-## 🛠️ 기술 스택
+## 기술 스택
 
 ### Frontend
 - React 19.2
@@ -82,7 +82,7 @@ REACT_APP_API_URL=http://localhost:3001/api
 - `GET /api/movies/search` - 영화 검색
 - `GET /api/movies/detail/:id` - 영화 상세
 
-## 🎨 주요 기능 상세
+## 주요 기능 상세
 
 ### 3D Carousel
 - Framer Motion 애니메이션
